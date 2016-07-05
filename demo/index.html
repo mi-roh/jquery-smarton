@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>jQuery smartOn (.smartOn() / .afterOn() / .everyOn() / .delayOn())</title>
+    <script src="../src/jquery.min.js"></script>
+    <script src="../src/jquery.smartOn.js"></script>
+    <style>
+        script.preview {
+            display:block;
+            white-space:pre;
+            border: 1px solid #efefef;
+            font-family: monospace;
+        }
+
+        .log {
+            max-height: 100px;
+            white-space: pre;
+            background: #efefef;
+            overflow: auto;
+        }
+
+        a {
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+            display: block;
+        }
+    </style>
+    <script>
+        var pushTimeStampToLog = function(t) {
+            $(t).siblings('.log').prepend('<div>' + Date.now() );
+        };
+    </script>
+</head>
+<body>
+<div id="wrapper">
+    <div class="example1">
+        <h1>.smartOn()</h1>
+        <p>Triggers every delay-ms at least 1 time</p>
+        <a>Click Me very often - triggers every 1s</a>
+        <a>A nother Trigger</a>
+        <script class="preview">
+            $( function() {
+                $( '.example1 a' ).smartOn(
+                    'click',
+                    function(e) {
+                        pushTimeStampToLog(this);
+                    },
+                    1000
+                );
+            });
+        </script>
+        <div class="log"></div>
+    </div>
+
+    <div class="example2">
+        <h1>.afterOn()</h1>
+        <p>Triggers after was not triggert for delay-ms</p>
+        <a>Click Me very often - 300ms after last trigger</a>
+        <a>A nother Trigger</a>
+        <script class="preview">
+            $( function() {
+                $( '.example2 a' ).afterOn(
+                    'click',
+                    function(e) {
+                        pushTimeStampToLog(this);
+                    },
+                    300
+                );
+            });
+        </script>
+        <div class="log"></div>
+    </div>
+
+    <div class="example3">
+        <h1>.everyOn()</h1>
+        <p>Triggers every delay-events</p>
+        <a>Click Me very often - triggs every 3 clicks</a>
+        <a>A nother Trigger</a>
+        <script class="preview">
+            $( function() {
+                $( '.example3 a' ).everyOn(
+                    'click',
+                    {
+                        my : 'custom'
+                    },
+                    function(e) {
+                        pushTimeStampToLog(this);
+                    },
+                    3
+                );
+            });
+        </script>
+        <div class="log"></div>
+    </div>
+
+    <div class="example4">
+        <h1>.delayOn()</h1>
+        <p>Triggers every event, but with a delay of delay-ms</p>
+        <a>Click Me very often - triggers 1s later</a>
+        <a>A nother Trigger</a>
+        <script class="preview">
+            $( function() {
+                $( '.example4 a' ).delayOn(
+                    'click',
+                    function(e) {
+                        pushTimeStampToLog(this);
+                    },
+                    1000
+                );
+            });
+        </script>
+        <div class="log"></div>
+    </div>
+
+</div>
+</body>
+</html>

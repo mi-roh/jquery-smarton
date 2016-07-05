@@ -1,0 +1,27 @@
+{
+  "name": "jquery-smartOn",
+  "license": "MIT",
+  "authors": [
+    "Micha Rohde <me@mi-roh.de>"
+  ],
+  "description": "Adds a set of function to manipulate on-event-binding",
+  "homepage": "https://github.com/mi-roh/jquery-smarton/",
+  "keywords": [
+    "jquery",
+    "plugin",
+    "smarton",
+    "everyon",
+    "afteron",
+    "delayon",
+    "jquery-plugin"
+  ],
+  "main": "dist/jquery.smartOn.min.js",
+  "dependencies": {
+    "jquery": "1"
+  },
+  "ignore": [
+    "npm-debug.log",
+    "bower_components",
+    "node_modules"
+  ]
+}
