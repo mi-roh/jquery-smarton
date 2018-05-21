@@ -1,6 +1,6 @@
 # jQuery SmartOn
 
-### A jump-start for jQuery plugins development
+### A Plugin to add Smart-On-Actions
 
 This Plugin contains several jQuery-Functions that make the ```.on()``` function more powerfull. 
 

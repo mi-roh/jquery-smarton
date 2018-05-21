@@ -1,3 +1,12 @@
+/*
+ *  jquery-smartOn - v0.1.0
+ *  Adds a set of function to manipulate on-event-binding
+ *  https://github.com/mi-roh/jquery-smarton/
+ *
+ *  Written by Micha Rohde (hi@mi-roh.de)
+ *  Under MIT License
+ *  SDG
+ */
 /*!
  * jquery-miRohSmartOn
  *
@@ -23,13 +32,31 @@
 
 // jshint -W098
 
-;( function( w, $, Array, Date ) {
+;
 
+(function ( root, factory ) {
+
+    var moduleName = "jquerySmartOn";
+
+    if(typeof exports === "object" && typeof module === "object") {
+        module.exports = factory( require( "jquery" ) );
+    } else if(typeof define === "function" && define.amd) {
+        define( [ "jquery" ], factory );
+    } else if(typeof exports === "object") {
+        exports[ moduleName ] = factory( jQuery );
+    } else {
+        root[ moduleName ] = factory( jQuery );
+    }
+    
+})( this, function( $ ) {
+    
+    "use strict";
+    
     //  Don't throw any errors when jQuery
     if ( !$ ) {
         return console.warn( "smartOn needs jQuery" );
     }
-
+    
     /**
      * Define smartOn Plugin
      * triggers the handler after the event was not triggered for delay ms times
@@ -43,7 +70,7 @@
      * to call the handler
      * @returns {*|HTMLElement}
      */
-
+    
     /**
      * Defines an Handler within an a smartOn Plugin, handling when the event gets called.
      * @callback smartOnAction
@@ -51,10 +78,11 @@
      * @param delay {number} the last parameter of the smartOn-Call
      * @param global {object} an Object, that will be passed every call, to transfer Data between
      * calls.
+     * @param global.t {number} a pointer to a running timeout
      * @param global.counter {number} counts of events since last time the fire()-Function got
      * called
      */
-
+    
     /**
      * Name of the After-Plugin in jQuery
      * @type {string}
@@ -75,19 +103,19 @@
      * @type {string}
      */
     var pluginNameDelay = "delayOn";
-
+    
     /**
      * Default Delay if not set on definition
      * @type {number}
      */
     var defaultDelay = 300;
-
+    
     /**
      * Only for Validation purpose
      * @type {{}|*}
      */
     $.fn = $.fn || {};
-
+    
     /**
      * With every ID it gets iterated
      * @type {number}
@@ -98,7 +126,7 @@
      * @type {number}
      */
     var idRandom = Math.floor( Math.random() * 26 ) + Date.now();
-
+    
     /**
      * Generates a smartOn-Function
      * @param smartOnName {string} Name of the smartOnFunction
@@ -107,16 +135,16 @@
      * @returns {smartOn}
      */
     var event = function( smartOnName, smartOnAction, defaultEventDelay ) {
-
+        
         // Function gets called on initialization of this Script
-
+        
         defaultEventDelay =
             "number" === typeof defaultEventDelay ? defaultEventDelay : defaultDelay;
-
+        
         return function( eventTypes, selector, data, handler, delay ) {
-
+            
             // The Actual Plugin gets Called on Call of .smartOn...
-
+            
             var arg = Array.prototype.slice.call( arguments ),
                 handlerArgument = arg.pop(),
                 delayArgument = defaultEventDelay,
@@ -125,17 +153,17 @@
                 getElementGlobal,
                 elementGlobals = {},
                 idBase = smartOnName + idRandom + "_" + ( ++idCounter );
-
+            
             if ( "number" === typeof handlerArgument ) {
                 delayArgument = handlerArgument;
                 handlerArgument = arg.pop();
             }
-
+            
             /**
              * returns a custom Object for the Element an Event-Binding
              * for global Data-Storage between several event-calls
              * @param $ele the Element to get the Data from
-             * @returns {object}
+             * @returns {{$ele:jQuery|HTMLElement,counter:int,...}}
              */
             getElementGlobal = function( $ele ) {
                 var key,
@@ -153,62 +181,62 @@
                 }
                 return elementGlobals[ key ];
             };
-
+            
             /**
              * Replaces the handler in the on-binding and fires the handler and prepares a function
              * to call, to fire the handler
              */
             smartHandler = function( eventObject ) {
-
+                
                 // Gets called when the original on-Event gets triggered
-
+                
                 // Global this
                 var THIS = this;
-
+                
                 // global Object for Data storage between several calls
                 var global = getElementGlobal( $( this ) );
-
+                
                 // Arguments for the trigger-Call
                 var onArguments = Array.prototype.slice.call( arguments );
-
+                
                 // Data to pass to the trigger-Call
                 var smartOnEventData = onArguments[ 0 ].smartOn = {
                     name: smartOnName
                 };
-
+                
                 // Function to trigger the call.
                 var fire = function() {
-
+                    
                     // Gets called by the smartOnAction wenn the Event shall fire
-
+                    
                     smartOnEventData.count = global.counter;
                     smartOnEventData.eventObjects = global.eventObjects;
-
+                    
                     handlerArgument.apply( THIS, onArguments );
                     global.counter = 0;
                 };
-
+                
                 if ( !global.eventObjects ) {
                     global.eventObjects = [];
                 }
-
+                
                 global.counter++;
                 global.eventObjects.push( eventObject );
-
+                
                 smartOnAction( fire, delayArgument, global );
-
+                
             };
-
+            
             // arg.push( dataArgument);
             arg.push( smartHandler );
-
+            
             $.fn.on.apply( $this, arg );
-
+            
             return $this;
         };
-
+        
     };
-
+    
     /**
      * Define afterOn Plugin
      * triggers the handler after the event was not triggered for delay ms times
@@ -216,14 +244,17 @@
      */
     $.fn[ pluginNameAfter ] = event(
         pluginNameAfter,
+        /**
+         * @typedef smartOnAction
+         */
         function( fire, delay, global ) {
-            w.clearTimeout( global.t );
-            global.t = w.setTimeout( function() {
+            clearTimeout( global.t );
+            global.t = setTimeout( function() {
                 fire();
             }, delay );
         }
     );
-
+    
     /**
      * Define smartOn Plugin
      * triggers the handler only every delay (ms)
@@ -233,15 +264,15 @@
         pluginNameSmart,
         function( fire, delay, global ) {
             if ( !global.t || global.t === -1 ) {
-                global.t = w.setTimeout( function() {
+                global.t = setTimeout( function() {
                     fire();
-                    w.clearTimeout( global.t );
+                    clearTimeout( global.t );
                     global.t = -1;
                 }, delay );
             }
         }
     );
-
+    
     /**
      * Define everyOn Plugin
      * triggers the handler only every delay times
@@ -256,7 +287,7 @@
         },
         10
     );
-
+    
     /**
      * Define delayOn Plugin
      * triggers the handler with a given delay (ms)
@@ -267,9 +298,9 @@
     $.fn[ pluginNameDelay ] = event(
         pluginNameDelay,
         function( fire, delay, global ) {
-            w.setTimeout( function() {
+            setTimeout( function() {
                 fire();
             }, delay );
         }
     );
-} )( window, jQuery, Array, Date );
+} );
