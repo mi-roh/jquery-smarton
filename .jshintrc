@@ -8,6 +8,6 @@
   "noarg": true,
   "onevar": true,
   "quotmark": "double",
-  "unused": true,
+  "unused": "vars",
   "node": true
 }

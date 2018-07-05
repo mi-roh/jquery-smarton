@@ -19,9 +19,7 @@
  *
  * SDG
  *
- * @version     0.2
  * @author      Micha Rohde <hi@mi-roh.de>
- * @copyright   Copyright (c) 2016 Micha Rohde
  *
  */
 
@@ -30,9 +28,23 @@
  * @todo  .on() supports following param-list: events (plain Object, Event-Handler), selector, data;
  */
 
-// jshint -W098
+( function( root, factory ) {
 
-;( function( w, $, Array, Date ) {
+    var moduleName = "jquerySmartOn";
+
+    if ( typeof exports === "object" && typeof module === "object" ) {
+        module.exports = factory( require( "jquery" ) );
+    } else if ( typeof define === "function" && define.amd ) {
+        define( [ "jquery" ], factory );
+    } else if ( typeof exports === "object" ) {
+        exports[ moduleName ] = factory( jQuery );
+    } else {
+        root[ moduleName ] = factory( jQuery );
+    }
+
+} )( this, function( $ ) {
+
+    "use strict";
 
     //  Don't throw any errors when jQuery
     if ( !$ ) {
@@ -60,6 +72,7 @@
      * @param delay {number} the last parameter of the smartOn-Call
      * @param global {object} an Object, that will be passed every call, to transfer Data between
      * calls.
+     * @param global.t {number} a pointer to a running timeout
      * @param global.counter {number} counts of events since last time the fire()-Function got
      * called
      */
@@ -68,28 +81,30 @@
      * Name of the After-Plugin in jQuery
      * @type {string}
      */
-    var pluginNameAfter = "afterOn";
+    var PLUGIN_NAME_AFTER = "afterOn";
     /**
      * Name of the Smart-Plugin in jQuery
      * @type {string}
      */
-    var pluginNameSmart = "smartOn";
+    var PLUGIN_NAME_SMART = "smartOn";
     /**
      * Name of the Every-Plugin in jQuery
      * @type {string}
      */
-    var pluginNameEvery = "everyOn";
+    var PLUGIN_NAME_EVERY = "everyOn";
     /**
      * Name of the Every-Plugin in jQuery
      * @type {string}
      */
-    var pluginNameDelay = "delayOn";
+    var PLUGIN_NAME_DELAY = "delayOn";
+
+    var DATA_ATTR = "smartOnEventKeys";
 
     /**
      * Default Delay if not set on definition
      * @type {number}
      */
-    var defaultDelay = 300;
+    var DEFAULT_DELAY = 300;
 
     /**
      * Only for Validation purpose
@@ -102,6 +117,7 @@
      * @type {number}
      */
     var idCounter = 0;
+
     /**
      * Random Key for Ids.
      * @type {number}
@@ -120,7 +136,7 @@
         // Function gets called on initialization of this Script
 
         defaultEventDelay =
-            "number" === typeof defaultEventDelay ? defaultEventDelay : defaultDelay;
+            "number" === typeof defaultEventDelay ? defaultEventDelay : DEFAULT_DELAY;
 
         return function( eventTypes, selector, data, handler, delay ) {
 
@@ -144,12 +160,12 @@
              * returns a custom Object for the Element an Event-Binding
              * for global Data-Storage between several event-calls
              * @param $ele the Element to get the Data from
-             * @returns {object}
+             * @returns {{$ele:jQuery|HTMLElement,counter:int,...}}
              */
             getElementGlobal = function( $ele ) {
                 var key,
-                    keys = $ele.data( "smartOnEventKeys" ) || {};
-                $ele.data( "smartOnEventKeys", keys );
+                    keys = $ele.data( DATA_ATTR ) || {};
+                $ele.data( DATA_ATTR, keys );
                 if ( !keys[ idBase ] ) {
                     keys[ idBase ] = ++idCounter;
                 }
@@ -223,11 +239,14 @@
      * triggers the handler after the event was not triggered for delay ms times
      * @type {smartOn}
      */
-    $.fn[ pluginNameAfter ] = event(
-        pluginNameAfter,
+    $.fn[ PLUGIN_NAME_AFTER ] = event(
+        PLUGIN_NAME_AFTER,
+        /**
+         * @typedef smartOnAction
+         */
         function( fire, delay, global ) {
-            w.clearTimeout( global.t );
-            global.t = w.setTimeout( function() {
+            clearTimeout( global.t );
+            global.t = setTimeout( function() {
                 fire();
             }, delay );
         }
@@ -238,13 +257,13 @@
      * triggers the handler only every delay (ms)
      * @type {smartOn}
      */
-    $.fn[ pluginNameSmart ] = event(
-        pluginNameSmart,
+    $.fn[ PLUGIN_NAME_SMART ] = event(
+        PLUGIN_NAME_SMART,
         function( fire, delay, global ) {
             if ( !global.t || global.t === -1 ) {
-                global.t = w.setTimeout( function() {
+                global.t = setTimeout( function() {
                     fire();
-                    w.clearTimeout( global.t );
+                    clearTimeout( global.t );
                     global.t = -1;
                 }, delay );
             }
@@ -256,8 +275,8 @@
      * triggers the handler only every delay times
      * @type {smartOn}
      */
-    $.fn[ pluginNameEvery ] = event(
-        pluginNameEvery,
+    $.fn[ PLUGIN_NAME_EVERY ] = event(
+        PLUGIN_NAME_EVERY,
         function( fire, delay, global ) {
             if ( delay <= global.counter ) {
                 fire();
@@ -273,12 +292,12 @@
      *
      * @todo - bug - doubleclick?
      */
-    $.fn[ pluginNameDelay ] = event(
-        pluginNameDelay,
+    $.fn[ PLUGIN_NAME_DELAY ] = event(
+        PLUGIN_NAME_DELAY,
         function( fire, delay, global ) {
-            w.setTimeout( function() {
+            setTimeout( function() {
                 fire();
             }, delay );
         }
     );
-} )( window, jQuery, Array, Date );
+} );

@@ -49,14 +49,14 @@ module.exports = function( grunt ) {
         uglify: {
             dist: {
                 expand: true,
-                cwd: 'dist/',
+                cwd: "dist/",
                 src: [
-                    '**/*.js',
-                    '!**/*.min.js'
+                    "**/*.js",
+                    "!**/*.min.js"
                 ],
-                dest: 'dist/',
-                ext:    '.min.js',
-                extDot: 'last',
+                dest: "dist/",
+                ext:    ".min.js",
+                extDot: "last",
             },
             options: {
                 banner: "<%= meta.banner_short %>"
@@ -66,9 +66,9 @@ module.exports = function( grunt ) {
         copy: {
             main: {
                 expand: true,
-                cwd: 'node_modules/jquery/dist/',
-                src: 'jquery.min.js',
-                dest: 'src/',
+                cwd: "node_modules/jquery/dist/",
+                src: "jquery.min.js",
+                dest: "src/",
             }
         },
 
@@ -94,7 +94,7 @@ module.exports = function( grunt ) {
 
         // watch for changes to source
         // Better than calling grunt a million times
-        // (call 'grunt watch')
+        // (call "grunt watch")
         watch: {
             options: {
                 atBegin: true
@@ -112,7 +112,7 @@ module.exports = function( grunt ) {
 //    grunt.loadNpmTasks( "grunt-contrib-coffee" );
     grunt.loadNpmTasks( "grunt-contrib-watch" );
     grunt.loadNpmTasks( "grunt-karma" );
-    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks( "grunt-contrib-copy" );
 
     grunt.registerTask( "travis", [ "jshint", "karma:travis" ] );
     grunt.registerTask( "lint", [ "jshint", "jscs" ] );

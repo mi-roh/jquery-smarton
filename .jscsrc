@@ -2,5 +2,6 @@
   "preset": "jquery",
   "requireCapitalizedComments": null,
   "excludeFiles": [ "node_modules", "dist", "src/jquery.min.js" ],
-  "verbose": true
+  "verbose": true,
+  "maximumLineLength": 120
 }
